@@ -1,24 +1,20 @@
 package dao
 
 import (
-	"context"
 	"fmt"
-	"hm-dianping-go/config"
-	"log"
-	"time"
-
-	"github.com/redis/go-redis/v9"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
+	"hm-dianping-go/config"
+	"log"
+	"time"
 )
 
-// 全局数据库连接实例
 var (
-	DB    *gorm.DB
-	Redis *redis.Client
+	DB *gorm.DB
 )
 
+// mysql模块
 // InitDB 初始化MySQL数据库连接
 func InitDB() error {
 	cfg := config.GetConfig()
@@ -51,28 +47,6 @@ func InitDB() error {
 	return nil
 }
 
-// InitRedis 初始化Redis连接
-func InitRedis() error {
-	cfg := config.GetConfig()
-	if cfg == nil {
-		return fmt.Errorf("config not loaded")
-	}
-	Redis = redis.NewClient(&redis.Options{
-		Addr:     fmt.Sprintf("%s:%s", cfg.Redis.Host, cfg.Redis.Port),
-		Password: cfg.Redis.Password,
-		DB:       cfg.Redis.DB,
-	})
-	// 测试连接
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-	_, err := Redis.Ping(ctx).Result()
-	if err != nil {
-		return fmt.Errorf("failed to connect to Redis: %w", err)
-	}
-	log.Println("Redis connected successfully")
-	return nil
-}
-
 // CloseDB 关闭数据库连接
 func CloseDB() error {
 	if DB != nil {
@@ -81,14 +55,6 @@ func CloseDB() error {
 			return err
 		}
 		return sqlDB.Close()
-	}
-	return nil
-}
-
-// CloseRedis 关闭Redis连接
-func CloseRedis() error {
-	if Redis != nil {
-		return Redis.Close()
 	}
 	return nil
 }

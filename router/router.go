@@ -2,6 +2,7 @@ package router
 
 import (
 	"hm-dianping-go/handler"
+	"hm-dianping-go/utils"
 
 	"github.com/gin-gonic/gin"
 )
@@ -17,6 +18,11 @@ func SetupRouter() *gin.Engine {
 		userGroup := api.Group("/user")
 		{
 			userGroup.POST("/code", handler.SendCode)
+			userGroup.POST("/register", handler.UserRegister)
+			userGroup.POST("/login", handler.UserLogin)
+			userGroup.POST("/logout", utils.Auth(), handler.UserLogout)
+			userGroup.GET("/me", utils.Auth(), handler.GetUserInfo)
+			userGroup.PUT("/update", utils.Auth(), handler.UpdateUserInfo)
 		}
 		// 商铺相关路由
 
