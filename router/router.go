@@ -25,7 +25,16 @@ func SetupRouter() *gin.Engine {
 			userGroup.PUT("/update", utils.Auth(), handler.UpdateUserInfo)
 		}
 		// 商铺相关路由
-
+		shopGroup := api.Group("/shop")
+		{
+			shopGroup.GET("/list", handler.GetShopList)
+			shopGroup.GET("/:id", handler.GetShopById)
+			shopGroup.GET("/of/type", handler.GetShopByType)
+			shopGroup.GET("/of/name", handler.GetShopByName)
+			shopGroup.POST("", handler.SaveShop)
+			shopGroup.PUT("", handler.UpdateShop)
+			shopGroup.GET("/:id/nearby", handler.GetNearbyShops) // 获取某个商铺附近的商铺
+		}
 		// 商铺类型相关路由
 
 		// 优惠券相关路由

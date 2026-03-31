@@ -28,10 +28,8 @@ func Auth() gin.HandlerFunc {
 			return
 		}
 		token := parts[1]
-		ctx := c.Request.Context()
-		key := LoginTokenBlackList + token
-		exists, err := dao.Redis.Exists(ctx, key).Result()
-		if err == nil && exists == 1 {
+		blacklisted, err := dao.IsTokenInBlacklist(token)
+		if err == nil && blacklisted {
 			ErrorResponse(c, http.StatusUnauthorized, "token已失效，请重新登录")
 			c.Abort()
 			return
