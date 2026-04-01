@@ -33,14 +33,26 @@ func SetupRouter() *gin.Engine {
 			shopGroup.GET("/of/name", handler.GetShopByName)
 			shopGroup.POST("", handler.SaveShop)
 			shopGroup.PUT("", handler.UpdateShop)
-			shopGroup.GET("/:id/nearby", handler.GetNearbyShops) // 获取某个商铺附近的商铺
+			shopGroup.GET("/:id/nearby", utils.Auth(), handler.GetNearbyShops) // 获取某个商铺附近的商铺
 		}
 		// 商铺类型相关路由
-
+		shopTypeGroup := api.Group("/shop-type")
+		{
+			shopTypeGroup.GET("/list", handler.GetShopTypeList)
+		}
 		// 优惠券相关路由
-
+		voucherGroup := api.Group("/voucher")
+		{
+			voucherGroup.GET("/list/:shopId", handler.GetVoucherList)
+			voucherGroup.POST("", handler.AddVoucher)
+			voucherGroup.POST("/seckill", handler.AddSeckillVoucher)
+			voucherGroup.GET("/seckill/:id", handler.GetSeckillVoucher)
+		}
 		// 优惠券订单相关路由
-
+		voucherOrderGroup := api.Group("/voucher-order")
+		{
+			voucherOrderGroup.POST("/seckill/:id", utils.Auth(), handler.SeckillVoucher)
+		}
 		// 博客相关路由
 
 		// 关注相关路由
