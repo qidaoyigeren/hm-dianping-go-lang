@@ -15,7 +15,7 @@ func SeckillVoucher(c *gin.Context) {
 		utils.ErrorResponse(c, http.StatusUnauthorized, "用户未登录")
 		return
 	}
-	voucherIdStr := c.Param("voucherId")
+	voucherIdStr := c.Param("id")
 	voucherId, err := strconv.ParseUint(voucherIdStr, 10, 32)
 	if err != nil {
 		utils.ErrorResponse(c, http.StatusBadRequest, "无效的优惠券ID")

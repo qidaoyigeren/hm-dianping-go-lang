@@ -54,7 +54,15 @@ func SetupRouter() *gin.Engine {
 			voucherOrderGroup.POST("/seckill/:id", utils.Auth(), handler.SeckillVoucher)
 		}
 		// 博客相关路由
-
+		blogGroup := api.Group("/blog")
+		{
+			blogGroup.POST("", utils.Auth(), handler.CreateBlog)
+			blogGroup.PUT("/like/:id", utils.Auth(), handler.LikeBlog)
+			blogGroup.GET("/hot", utils.Auth(), handler.GetHotBlogList)
+			blogGroup.GET("/of/me", utils.Auth(), handler.GetBlogListOfUser)
+			blogGroup.GET("/:id", utils.Auth(), handler.GetBlog)
+			blogGroup.GET("/of/follow", utils.Auth(), handler.GetBlogListOfFollow)
+		}
 		// 关注相关路由
 
 		// 统计相关路由

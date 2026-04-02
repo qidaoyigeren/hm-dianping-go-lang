@@ -1,6 +1,9 @@
 package dao
 
-import "hm-dianping-go/models"
+import (
+	"context"
+	"hm-dianping-go/models"
+)
 
 func CheckUserExistsByPhone(phone string) (bool, error) {
 	var count int64
@@ -16,7 +19,7 @@ func CreateUser(user *models.User) error {
 }
 func GetUserByPhone(phone string) (*models.User, error) {
 	var user *models.User
-	err := DB.Model(&models.User{}).Where("phone = ?", phone).First(&models.User{}).Error
+	err := DB.Where("phone = ?", phone).First(&user).Error
 	if err != nil {
 		return nil, err
 	}
@@ -33,4 +36,15 @@ func GetUserById(userID uint) (*models.User, error) {
 }
 func UpdateUser(user *models.User) error {
 	return DB.Save(user).Error
+}
+func GetAllUserIDs() ([]uint, error) {
+	var ids []uint
+	err := DB.Model(&models.User{}).Pluck("id", &ids).Error
+	if err != nil {
+		return nil, err
+	}
+	return ids, nil
+}
+func GetAllUserIDsWithContext(ctx context.Context) ([]uint, error) {
+	return GetAllUserIDs()
 }

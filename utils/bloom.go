@@ -191,21 +191,40 @@ func (bf *BloomFilter) ExistsMulti(ctx context.Context, items []string) ([]bool,
 
 // Info 获取布隆过滤器信息
 func (bf *BloomFilter) Info(ctx context.Context) (map[string]interface{}, error) {
-	results, err := bf.rdb.Do(ctx, "BF.INFO", bf.config.Key).Slice()
-	if err != nil {
+	cmd := bf.rdb.Do(ctx, "BF.INFO", bf.config.Key)
+	if err := cmd.Err(); err != nil {
 		return nil, fmt.Errorf("获取布隆过滤器信息失败: %v", err)
 	}
 
-	info := make(map[string]interface{})
-	for i := 0; i < len(results); i += 2 {
-		if i+1 < len(results) {
-			key := fmt.Sprintf("%v", results[i])
-			value := results[i+1]
-			info[key] = value
-		}
+	result, err := cmd.Result()
+	if err != nil {
+		return nil, fmt.Errorf("解析布隆过滤器信息失败: %v", err)
 	}
 
-	return info, nil
+	// 处理不同类型的返回值
+	switch v := result.(type) {
+	case map[interface{}]interface{}:
+		// 如果返回的是map类型，直接转换
+		info := make(map[string]interface{})
+		for key, value := range v {
+			infoKey := fmt.Sprintf("%v", key)
+			info[infoKey] = value
+		}
+		return info, nil
+	case []interface{}:
+		// 如果返回的是slice类型，按原来的方式处理
+		info := make(map[string]interface{})
+		for i := 0; i < len(v); i += 2 {
+			if i+1 < len(v) {
+				key := fmt.Sprintf("%v", v[i])
+				value := v[i+1]
+				info[key] = value
+			}
+		}
+		return info, nil
+	default:
+		return nil, fmt.Errorf("未知的返回类型: %T", result)
+	}
 }
 
 // Delete 删除布隆过滤器

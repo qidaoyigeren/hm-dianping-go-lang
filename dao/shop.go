@@ -111,3 +111,14 @@ func GetNearbyShops(ctx context.Context, rds *redis.Client, shop *models.Shop, r
 	}
 	return shopIds, nil
 }
+func GetAllShopIDs(ctx context.Context, db *gorm.DB) ([]uint, error) {
+	var ids []uint
+	err := db.WithContext(ctx).Model(&models.Shop{}).Pluck("id", &ids).Error
+	if err != nil {
+		return nil, err
+	}
+	return ids, nil
+}
+func GetAllShopIDsWithContext(ctx context.Context) ([]uint, error) {
+	return GetAllShopIDs(ctx, DB)
+}

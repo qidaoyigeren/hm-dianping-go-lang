@@ -2,11 +2,14 @@ package service
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"hm-dianping-go/dao"
 	"hm-dianping-go/models"
 	"hm-dianping-go/utils"
 	"time"
+
+	"gorm.io/gorm"
 )
 
 const (
@@ -113,14 +116,20 @@ func UserLogin(phone, code string) *utils.Result {
 	user, err := dao.GetUserByPhone(phone)
 	if err != nil {
 		//用户不存在，自动注册
-		nuser := models.User{
-			Phone:    phone,
-			NickName: "用户" + phone[7:],
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			nuser := models.User{
+				Phone:    phone,
+				NickName: "用户" + phone[7:],
+			}
+			if err := dao.CreateUser(&nuser); err != nil {
+				return utils.ErrorResult("登录失败")
+			}
+			user = &nuser
+		} else {
+			// 数据库查询错误
+			return utils.ErrorResult("系统错误，请稍后重试")
 		}
-		if err := dao.CreateUser(&nuser); err != nil {
-			return utils.ErrorResult("登录失败")
-		}
-		user = &nuser
+
 	}
 	//生成JWT
 	token, err := utils.GenerateToken(user.ID)
