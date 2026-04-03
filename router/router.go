@@ -64,7 +64,12 @@ func SetupRouter() *gin.Engine {
 			blogGroup.GET("/of/follow", utils.Auth(), handler.GetBlogListOfFollow)
 		}
 		// 关注相关路由
-
+		followGroup := api.Group("/follow")
+		{
+			followGroup.PUT(":id/:isFollow", utils.Auth(), handler.Follow)
+			followGroup.GET("/or/not/:id", utils.Auth(), handler.IsFollow)
+			followGroup.GET("/common/:id", utils.Auth(), handler.GetCommonFollows)
+		}
 		// 统计相关路由
 	}
 	return r
