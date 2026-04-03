@@ -73,6 +73,15 @@ func SetupRouter() *gin.Engine {
 			followGroup.GET("/common/:id", utils.Auth(), handler.GetCommonFollows)
 		}
 		// 统计相关路由
+		statGroup := api.Group("/stat")
+		{
+			statGroup.GET("/uv/today", handler.GetTodayUV)
+			statGroup.GET("/uv/daily", handler.GetDailyUV)
+			statGroup.GET("/uv/recent", handler.GetRecentUV)
+			statGroup.GET("/uv/range", handler.GetUVRange)
+		}
 	}
+	// 健康检查
+	r.GET("/health", handler.HealthCheck)
 	return r
 }

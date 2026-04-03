@@ -122,3 +122,28 @@ func GetAllShopIDs(ctx context.Context, db *gorm.DB) ([]uint, error) {
 func GetAllShopIDsWithContext(ctx context.Context) ([]uint, error) {
 	return GetAllShopIDs(ctx, DB)
 }
+
+func LoadShopData(ctx context.Context, db *gorm.DB, rds *redis.Client) error {
+	// 1. 查询所有的店铺
+	var shops []models.Shop
+	err := db.WithContext(ctx).Model(&models.Shop{}).Find(&shops).Error
+	if err != nil {
+		return fmt.Errorf("failed to query shops: %w", err)
+	}
+
+	// 2. 遍历店铺，根据类型进行缓存
+	for _, shop := range shops {
+		// 2.1 使用 GEOADD 存储店铺位置信息
+		err = rds.GeoAdd(ctx, ShopLocationCache+strconv.Itoa(int(shop.TypeID)), &redis.GeoLocation{
+			Name:      strconv.Itoa(int(shop.ID)),
+			Latitude:  shop.Y,
+			Longitude: shop.X,
+		}).Err()
+
+		if err != nil {
+			return fmt.Errorf("failed to set geo cache: %w", err)
+		}
+	}
+
+	return nil
+}

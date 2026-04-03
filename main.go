@@ -49,6 +49,9 @@ func main() {
 	if err := service.InitKafkaConsumer(); err != nil {
 		log.Fatalf("Failed to initialize Kafka consumer: %v", err)
 	}
+	if err := dao.LoadShopData(context.Background(), dao.DB, dao.Redis); err != nil {
+		log.Fatalf("Failed to load shop locations: %v", err)
+	}
 	r := router.SetupRouter()
 	port := config.GetConfig().Server.Port
 	if port == "" {
