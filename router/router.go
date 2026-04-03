@@ -9,8 +9,10 @@ import (
 
 func SetupRouter() *gin.Engine {
 	r := gin.Default()
-	// TODO:添加中间件
-
+	//添加中间件
+	r.Use(utils.CORS())
+	r.Use(utils.Logger())
+	r.Use(utils.Recovery())
 	// API路由组
 	api := r.Group("/api")
 	{
